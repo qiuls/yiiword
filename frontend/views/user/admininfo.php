@@ -18,7 +18,7 @@
             <li><input type="email" class="form-control" name="malibox" value="<?php  echo $user['malibox'];?>" placeholder="请输入新的邮件"></li>
             <li>新密码：<li>
             <li><input type="password" class="form-control" name="password"  value="<?php  echo $user['password'];?>" placeholder="请输入新的密码"></li>
-            <li>是否修改密码: <input type="checkbox" class="form-control" name="query"></li>
+            <li>是否修改密码: <input type="checkbox" class="form-control" value="1" name="query"></li>
             <li><input type="button"  style="width: 50px;height: 35px;text-align: center;" class='k-button k-button-icontext' id="from-button" value="确认"></li>
             <li><input type="hidden" value="<?php  echo $user['id'];?>" name="id"></li>
             <li><input type="hidden" value="<?php  echo \Yii::$app->request->csrfToken;?>" id="_csrf" name="_csrf"></li>

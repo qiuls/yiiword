@@ -25,6 +25,9 @@ public $layout='layouts';
             if(empty($res)){
                return json_encode(['code'=>300,'message'=>'用户名或密码错误,请重试~']);
            }
+            if($res['status']!==1){
+                return json_encode(['code'=>300,'message'=>'账号没有激活,请联系管理员~']);
+            }
             $res_arr=$res->toArray();
             $res->last_login_time=$res_arr['login_time'];
             $res->login_time=time();

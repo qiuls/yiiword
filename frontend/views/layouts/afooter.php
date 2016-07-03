@@ -13,8 +13,8 @@
            <span style="text-align:right;font-size: 25px;font-style: normal;">问卷调查管理系统</span>
        </div>
         <div>
-            欢迎~<span><?php echo \Yii::$app->cache->get('myid'); ?></span>
-            最后登录时间：<?php echo \Yii::$app->cache->get('my_last_login'); ?>
+            欢迎~<span style="color: whitesmoke"><?php echo \Yii::$app->cache->get('myid'); ?></span>
+            <span style="color: whitesmoke">最后登录时间：<?php echo \Yii::$app->cache->get('my_last_login'); ?></span>
             <div>
 
 <!--        <div style="float: right"></div>-->
@@ -22,9 +22,10 @@
     <div id="menu" style="background-color:#00a1e8;height:800px;width:12%;float:left;">
         <ul style="list-style: none;">
             <li class="lable_li" onclick="javascript:document.getElementById('lable-01').click();"><a id="lable-01" href="/?r=user/"><b style="color: white">首页</b></a></li>
-        <li class="lable_li" onclick="javascript:document.getElementById('lable-02').click();"><a id="lable-02" href="/?r=user/add" ><b style="color: white">添加问卷</b></a></li>
+           <li class="lable_li" onclick="javascript:document.getElementById('lable-02').click();"><a id="lable-02" href="/?r=user/add" ><b style="color: white">添加问卷</b></a></li>
             <li class="lable_li"  onclick="javascript:document.getElementById('lable-03').click();"><a id="lable-03" href="/?r=user/userlist"><b style="color: white">答卷列表</b></a></li>
-            <li class="lable_li" id="userinfo" onclick="javascript:document.getElementById('lable-03').click();"><span style="color: white"><a href="/?r=user/admininfo" id=""lable-04">我的信息</a></span><li>
+            <li class="lable_li"  onclick="javascript:document.getElementById('lable-05').click();"><a id="lable-05" href="/?r=user/adminadd"><b style="color: white">添加新用户</b></a></li>
+            <li class="lable_li" id="userinfo" onclick="javascript:document.getElementById('lable-04').click();"><span style="color: white"><a href="/?r=user/admininfo" id="lable-04">我的信息</a></span><li>
 <!--        <li  onclick="javascript:document.getElementById('lable-04').click();" style="background-color:#99ee99;width: 100%;height: 35px;"><a id="lable-04" href="/?r=admin/userout">退出</a></li>-->
             <li class="lable_li" id="tuichu" style="color: dimgrey">退出</li>
         </ul>

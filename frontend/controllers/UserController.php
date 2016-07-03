@@ -21,7 +21,7 @@ class UserController extends Controller
     public $layout = 'afooter';
 //    public $enableCsrfValidation = false;
     /**
-     * 初始化方法
+     * 初始化方法 判断是否登录
      */
     public function init()
     {
@@ -424,8 +424,16 @@ class UserController extends Controller
             if ($yzm !== $session['str']) {
                 return json_encode(['code' => 400, 'message' => '验证码错误']);
             }
+            $username=\Yii::$app->request->post('username','');
+            if(empty($username)){
+                return json_encode(['code' => 400, 'message' => '用户名为空']);
+            }else{
+                if(!$this->Userunique($username)){
+                    return json_encode(['code' => 400, 'message' => '用户名已存在']);
+                }
+            }
             $admin_res           = User::find()->where('id=:id', [':id' => $session['id']])->one();
-            $admin_res->username = \Yii::$app->request->post('username', substr(sha1(time()), 0, 10));
+            $admin_res->username = $username;
             $admin_res->malibox  = \Yii::$app->request->post('malibox');
             $password            = \Yii::$app->request->post('password', '');
             $query               = \Yii::$app->request->post('query', '');
@@ -464,6 +472,45 @@ class UserController extends Controller
 
         } else {
             return json_encode(['code' => 300, 'message' => '请求异常']);
+        }
+    }
+
+    public function actionAdminadd(){
+        if(\Yii::$app->request->isPost){
+            $admin_res=new User();
+            $username=\Yii::$app->request->post('username');
+            if(!empty($username)){
+                if(!$this->Userunique($username)){
+                    return json_encode(['code' => 300, 'message' => '用户名已存在']);
+                }
+            }else{
+                return json_encode(['code' => 300, 'message' => '用户名不能为空']);
+            }
+            $admin_res->username=\Yii::$app->request->post('username');
+            $admin_res->password=\Yii::$app->request->post('password');
+            $admin_res->malibox=\Yii::$app->request->post('malibox');
+            if(\Yii::$app->request->post('status','')){
+                $admin_res->status=1;
+            }
+            $admin_res->last_login_time=time();
+            $admin_res->login_time=time();
+            if($admin_res->save()){
+                return json_encode(['code' => 200, 'message' => '添加成功']);
+            }else{
+                return json_encode(['code' => 300, 'message' => '添加失败请稍后再试~']);
+            }
+        }else{
+            return $this->render('adminadd');
+        }
+    }
+
+    protected function Userunique($username){
+        $res=User::find()->where('username=:username',[':username'=>$username])->one();
+        $arr=$res->toArray();
+        if(isset($arr) && is_array($arr)){
+            return false;
+        }else{
+            return true;
         }
     }
 

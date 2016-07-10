@@ -98,7 +98,7 @@
                        if(confirm(message+' 关闭页面请刷新列表')){
                            window.opener = null;
                            window.open('', '_self');
-                           window.close()
+                           window.close();
                        }
                     }else{
                        var message=res.message;

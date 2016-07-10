@@ -47,12 +47,15 @@ class TestController extends Controller
     {
         if (!empty($_POST)) {
             $pid = \Yii::$app->request->get('w_id');
+            if(empty($pid)){
+                return json_encode(['code'=>300,'message'=>'缺少参数']);
+            }
             $mb_phone=\Yii::$app->request->post('mb_phone');
             $name    =\Yii::$app->request->post('name');
-            $uniqpue=Csuser::find()->where('task_pid=:task_pid AND mb_phone=:mb_phone',[':task_pid'=>$pid,':mb_phone'=>$mb_phone])->one();
-            $uniqpue=$uniqpue->toArray();
-            if(!empty($uniqpue)){
-                return json_encode(['code'=>300,'message'=>'您已经参加过本次问卷了']);
+            $unique=Csuser::find()->where('task_pid=:task_pid and mb_phone=:mb_phone',[':task_pid'=>$pid,':mb_phone'=>$mb_phone])->one();
+//            $unique=Csuser::find()->where('mb_phone=:mb_phone',[':mb_phone'=>$mb_phone])->one();
+            if(!empty($unique)) {
+                return json_encode(['code' => 300, 'message' => '您已经参加过本次问卷了']);
             }
             $w_res = Csawk::find()->where('pid=:pid', [':pid' => $pid])->all();
             $arr=[];
@@ -66,10 +69,12 @@ class TestController extends Controller
             $task_pid=intval(\Yii::$app->request->post('task_pid'));
             $p_res=Csawk::find()->where('id=:id',[':id'=>$task_pid])->one();
             $p_res=$p_res->toArray();
+            $tr = \Yii::$app->db->beginTransaction();
+            $num=0;
             try{
                 foreach ($arr as $v) {
-                $model = new Csuser();
-                if ($v['input'] == 1) {
+                    $model = new Csuser();
+                    if ($v['input'] == 1) {
                     $model->res = \Yii::$app->request->post(sha1($v['id']));
                 } elseif ($v['input'] == 2) {
                     $model->res = \Yii::$app->request->post(sha1($v['id']));
@@ -79,39 +84,58 @@ class TestController extends Controller
                 }else{
                     break;
                 }
+                $model->create_time=time();
                 $model->task_id  = $v['id'];
                 $model->task_pid =$task_pid;
                 $model->task_ptitle=$p_res['task_name'];
                 $model->mb_phone = $mb_phone;
                 $model->name     = $name;
-                $num=$model->save();
+                if($model->save()){
+                   $num++;
+                }
             }
-                if(!empty($num)){
+
+                if($num==count($arr)){
+                    $tr->commit();
                     return json_encode(['code' => 200,'message'=>'添加成功']);
+                }else{
+                    $tr->rorollBack();
+                    return json_encode(['code' => 300,'message'=>'添加失败1']);
                 }
             } catch(Exception $e){
+                $tr->rorollBack();
                 return json_encode(['code'=>300,'message'=>'添加失败']);
-//                return false;
             }
         } else {
             $pid = \Yii::$app->request->get('w_id');
-            $res = Csawk::find()->where('id=:id', [':id' => $pid])->one();
-            if (empty($res)) {
-                return json_encode(['code' => '404', 'message' => '请重新打开链接']);
-//                return false;
-            }
-            $w_res = Csawk::find()->where('pid=:pid', [':pid' => $pid])->all();
-            if (empty($w_res)) {
-                return json_encode(['code' => '405', 'message' => '请重新打开链接']);
-//                 false;
-            }
+            $res = Csawk::find()->where('id=:id and status=:status', [':id' => $pid,':status'=>1])->one();
+            //$message='';
+            $w_res = Csawk::find()->where('pid=:pid and status=:status', [':pid' => $pid,':status'=>1])->all();
+//            if (empty($w_res)) {
+//                return json_encode(['code' => '405', 'message' => '请重新打开链接']);
+//            }
+            if(!empty($res)){
             $res   = $res->toArray();
+            }else{
+                $res['task_name']='页面错误~ 请联系管理员获取新的链接';
+                $res['id']='';
+            }
             $model = ['title' => $res, 'arr' => $w_res];
             return $this->render('begin', ['model' => $model]);
         }
     }
        public function actionEnd()
        {
-           var_dump(\Yii::$app->request->get('str'));
+            $str=\Yii::$app->request->get('str');
+            //$type = 1;
+            $p_title = Csawk::find()->where('type=:type and status=:status', [':type' => 1,':status'=>1])->limit(5)->all();
+            $arr     = [];
+           foreach ($p_title as $value) {
+               $arr[] = [
+                   'id'        => $value['id'],
+                   'task_name' => $value['task_name'],
+               ];
+           }
+           return $this->render('end',['arr'=>$arr,'str'=>$str]);
        }
 }

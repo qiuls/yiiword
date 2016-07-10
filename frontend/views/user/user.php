@@ -2,20 +2,23 @@
 use yii\helpers\Html;
 ?>
 <div id="api">
-    <div style="height: 30px;"><span>首页</span></div>
+    <div style="height: 30px;"><span>问卷列表</span></div>
 <div id="select">
     <select style="width:200px;height:35px;">
         <option value="-1">请选择问卷标题</option>
 
     </select>
 </div>
-    <div style="width: auto;height: 100px;"></div>
-<?= Html::csrfMetaTags(); ?>
-<div id="p_title" style="display:none">
+    <div style="width: auto;height: 100px;">
+
+
+    </div>
+<input type="hidden"  name="_csrf" value="<?php echo Yii::$app->request->csrfToken;?>">
+<div id="p_title" style="display:none;overflow: scroll;">
 
 </div>
 
-<div id="title" style="display:none">
+<div id="title" style="display:none;overflow: scroll;">
 
 </div>
     </div>
@@ -75,18 +78,33 @@ use yii\helpers\Html;
              }, {
                  field: "meta",
                  title: "描述",
+             },{
+                 field: "create_time",
+                 title: "创建时间",
+             },{
+                 field: "last_update_time",
+                 title: "最后更新时间",
              }, {
                  field: "meta",
                  title: "url",
                  template:function(item){
-                     var url='http://192.168.117.10:8083/?r=test/begin&w_id='+item.id;
-                     var input='<input type="text"  size="50" value="'+ url+'">';
+                        var url='<?php echo $_SERVER['HTTP_HOST'];?>'+'/?r=test/begin&w_id='+item.id;
+                     var input='<input type="text"  style="width:180px;height: 50px;font-size: 17px;"  value="'+ url+'">';
                      return input;
                  }
              },{
-                 command: [{text: "更新", click: showContent}],
+//                 command: [{text: "更新", click: showContent}],
                  field:'a',
                  title: "操作",
+                 template:function(item){
+                     var str='<input type="button" class="k-button k-button-icontext" onclick="showContent('+item.id+','+item.type+');" value="更新">';
+                     if(item.status==1){
+                         str+=' <input type="button" class="k-button k-button-icontext" onclick="updateStatus('+ item.id+','+0+');" value="下线">';
+                        }else {
+                         str+=' <input type="button" class="k-button k-button-icontext" onclick="updateStatus('+ item.id+','+1+');" value="发布">';
+                     }
+                     return str;
+                 }
              }]
          });
          }else if(type==2){
@@ -150,9 +168,24 @@ use yii\helpers\Html;
                      field: "p_title_name",
                      title: "所属问卷标题"
                  },{
-                     command: [{text: "更新", click: showContent}],
-                     field: "a",
-                     title:"操作"
+                     field: "create_time",
+                     title: "创建时间",
+                 },{
+                     field: "last_update_time",
+                     title: "最后更新时间",
+                 },{
+//                     command: [{text: "更新", click: showContent}],
+                     field:'a',
+                     title: "操作",
+                     template:function(item){
+                         var str='<input type="button" class="k-button k-button-icontext" onclick="showContent('+item.id+','+item.type+');" value="更新">';
+                         if(item.status==1){
+                             str+=' <input type="button" class="k-button k-button-icontext" onclick="updateStatus('+ item.id+','+0+');" value="下线">';
+                         }else {
+                             str+=' <input type="button" class="k-button k-button-icontext" onclick="updateStatus('+ item.id+','+1+');" value="发布">';
+                         }
+                         return str;
+                     }
                  }]
              });
          }else {
@@ -164,12 +197,34 @@ use yii\helpers\Html;
 
 });
 
-    function showContent(e){
-        e.preventDefault();
-        var thisTiem= this.dataItem($(e.currentTarget).closest("tr"));
-        //alert(thisTiem.id);
-        var  url='/?r=user/update&id='+thisTiem.id+'&type='+thisTiem.type;
+    function showContent(id,type){
+////        e.preventDefault();
+////        var thisTiem= this.dataItem($(e.currentTarget).closest("tr"));
+//        var  url='/?r=user/update&id='+thisTiem.id+'&type='+thisTiem.type;
+        var url='/?r=user/update&id='+id+'&type='+type;
         window.open(url);
-//alert(1);
+    }
+
+    function updateStatus(id,status){
+//        var status=$(this).attr('data-status');
+//          alert(status);
+//        return;
+        var _csrf=$('input[name=_csrf]').val();
+        if(_csrf==undefined){
+            return;
+        }
+        $.ajax({
+           url:'/?r=user/updatestatus',
+            type:'POST',
+            data:{
+                _csrf:_csrf,
+                id:id,
+                status:status
+            },
+            dataType:'json',
+            success:function(res){
+               alert(res.message);
+            }
+        });
     }
 </script>

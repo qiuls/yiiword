@@ -21,6 +21,7 @@ public $layout='layouts';
         if(!empty($_POST)){
             $username=\Yii::$app->request->post('username','');
             $password=\Yii::$app->request->post('password','');
+            $password=substr(md5(md5($password)),0,34);
             $res=User::find()->where('username=:username and password=:password',[":username"=>$username,":password"=>$password])->one();
             if(empty($res)){
                return json_encode(['code'=>300,'message'=>'用户名或密码错误,请重试~']);
@@ -39,7 +40,7 @@ public $layout='layouts';
                 $session->open();
                 $session['id']=$res_arr['id'];
                 $session['name']=$res_arr['username'];
-                $session['last_login_time']=$res_arr['last_login_time'];
+                $session['last_login_time']=date('Y-m-d H:i:s',$res_arr['last_login_time']);
                 return json_encode(['code'=>200,'message'=>'','jump'=>'/?r=user/index']);
 //              return $this->redirect('/?r=user/index');
               }else{

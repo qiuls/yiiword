@@ -8,17 +8,20 @@
 
 namespace frontend\controllers;
 
+use app\models\Call;
 use app\models\Csawk;
 use app\models\Csuser;
 use app\models\User;
 //use common\controllers\Mail;
 use yii\web\Controller;
+//use app\models\Call;
 
 //use yii\swiftmailer;
 
 class UserController extends Controller
 {
     public $layout = 'afooter';
+    public $session_id='';
 //    public $enableCsrfValidation = false;
     /**
      * 初始化方法 判断是否登录
@@ -31,10 +34,11 @@ class UserController extends Controller
         if (empty($session['id'])) {
             $this->redirect('/?r=admin/index');
         } else {
-            if (!\Yii::$app->cache->get('myid') && !\Yii::$app->cache->get('my_last_login')) {
-                \Yii::$app->cache->set('myid', $session['name'], 3600);
-                \Yii::$app->cache->set('my_last_login', date('Y-m-d H:i:s', $session['last_login_time']), 3600);
-            }
+             $this->session_id=$session['id'];
+//            if (!\Yii::$app->cache->get('myid') && !\Yii::$app->cache->get('my_last_login')) {
+//                \Yii::$app->cache->set('myid', $session['name'], 3600);
+//                \Yii::$app->cache->set('my_last_login', date('Y-m-d H:i:s', $session['last_login_time']), 3600);
+//            }
         }
     }
 
@@ -47,6 +51,47 @@ class UserController extends Controller
         return $this->render('user');
 
     }
+
+    /**
+     * 更新问卷状态
+     * @return string
+     */
+     public function actionUpdatestatus(){
+         if(\Yii::$app->request->isPost){
+             $id=intval(\Yii::$app->request->post('id',''));
+             $status=\Yii::$app->request->post('status','');
+             if(empty($id)){
+                 return json_encode(['code' => 300, 'message' => '参数错误']);
+             }
+             if(!is_numeric($status)){
+                 return json_encode(['code' => 300, 'message' => '参数错误']);
+             }
+               $res=Csawk::find()->where('id=:id',[':id'=>$id])->one();
+                $arr=$res->toArray();
+                if($arr['status']==$status){
+                    switch($arr['status']){
+                        case 0:
+                           $status='下线';
+                            break;
+                        case 1:
+                            $status='发布';
+                            break;
+                        default:
+                            $status='下线';
+                    }
+                    return json_encode(['code' => 300, 'message' => "状态已经是{$status}了"]);
+                }else{
+                    $res->status=$status;
+                    if ($res->save()){
+                        return json_encode(['code' => 200, 'message' => '更新成功,刷新页面']);
+                      } else {
+                        return json_encode(['code' => 300, 'message' => '添加失败']);
+                     }
+                }
+         }else{
+             return json_encode(['code' => 300, 'message' => '非法请求']);
+         }
+     }
 
     /**
      * 问卷 题目 api
@@ -68,6 +113,9 @@ class UserController extends Controller
                         'id'        => $v['id'],
                         'type'      => $v['type'],
                         'task_name' => $v['task_name'],
+                        'status'    =>$v['status'],
+                        'create_time'=>date('Y-m-d H:i:s',$v['create_time']),
+                        'last_update_time'=>date('Y-m-d H:i:s',$v['last_update_time']),
                         'meta'      => $v['meta'],
                     ];
                 } elseif ($type == 2) {
@@ -77,7 +125,7 @@ class UserController extends Controller
                         $pres    = $pres->toArray();
                         $p_title = $pres['task_name'];
                     }
-                    switch ($v['input']) {
+                    switch ($v['input']){
                         case 1:
                             $v['input'] = '文本框';
                             break;
@@ -100,7 +148,10 @@ class UserController extends Controller
                         'c'            => $v['c'],
                         'd'            => $v['d'],
                         'input'        => $v['input'],
+                        'status'    =>$v['status'],
                         'p_title_name' => $p_title,
+                        'create_time'=>date('Y-m-d H:i:s',$v['create_time']),
+                        'last_update_time'=>date('Y-m-d H:i:s',$v['last_update_time']),
                     ];
                 } else {
                     break;
@@ -125,6 +176,8 @@ class UserController extends Controller
             $type  = intval(\Yii::$app->request->post('type', ''));
             $title = \Yii::$app->request->post('task_name');
             $meta  = \Yii::$app->request->post('meta', '');
+            $model->last_update_time=time();
+            $model->create_time     =time();
             if ($type == 1) {
                 $model->task_name = $title;
                 $model->type      = $type;
@@ -178,14 +231,6 @@ class UserController extends Controller
      */
     public function actionListapi()
     {
-//        if (empty($_GET['pid'])){
-        //            $pid_res = Csawk::find()->where('type=:type', [':type' => 1])->one();
-        //            $pid     = $pid_res->toArray();
-        //            $pid     = $pid['id'];
-        //            $pid     = 2;
-        //        } else {
-        //            $pid = $_GET['pid'];
-        //        }
         $pid = \Yii::$app->request->get('pid', '');
         if (empty($pid)) {
             return json_encode(['code' => 300, 'message' => '非法请求']);
@@ -198,6 +243,7 @@ class UserController extends Controller
                 'mb_phone'    => $v->mb_phone,
                 'name'        => $v->name,
                 'task_ptitle' => $v->task_ptitle,
+                'create_time'=>date('Y-m-d H:i:s',$v->create_time),
             ];
         }
         return json_encode($res_s);
@@ -234,7 +280,7 @@ class UserController extends Controller
     }
 
     /**
-     * 获取用户问卷答题
+     * 获取用户问卷答题详情
      * @return string
      */
     public function actionUsercwkapi()
@@ -280,6 +326,7 @@ class UserController extends Controller
                     'd'         => $v['d'],
                     'input'     => $v['input'],
                     'task_name' => $v['task_name'],
+//                    'create_time'=>date('Y-m-d H:i:s',$v['create_time']),
                     'res'       => $v['res'],
                 ];
             }
@@ -345,6 +392,7 @@ class UserController extends Controller
             $model = Csawk::find()->where('id=:id', [':id' => $id])->one();
             $title = \Yii::$app->request->post('task_name');
             $meta  = \Yii::$app->request->post('meta');
+            $model->last_update_time=time();
             if ($type == 1) {
                 $model->task_name = $title;
 //                $model->create_id = $session['id'];
@@ -382,8 +430,6 @@ class UserController extends Controller
             } else {
                 return json_encode(['code' => 403, 'message' => '参数错误']);
             }
-
-            //code
         } else {
             if (!\Yii::$app->request->get('id', '')) {
                 return json_encode(['code' => 403, 'message' => '缺少参数']);
@@ -400,9 +446,11 @@ class UserController extends Controller
 
     public function actionAdmininfo()
     {
-        $this->init();
         $session = \Yii::$app->session;
         $session->open();
+        if(empty($session['id'])){
+            return $this->redirect(['admin/index']);
+        }
         if (!\Yii::$app->request->isPost) {
             $userinfo = User::find()->where('id=:id', [':id' => $session['id']])->one();
             $userinfo = $userinfo->toArray();
@@ -438,7 +486,7 @@ class UserController extends Controller
             $password            = \Yii::$app->request->post('password', '');
             $query               = \Yii::$app->request->post('query', '');
             if (!empty($password) && !empty($query)) {
-                $admin_res->password = \Yii::$app->request->post('password');
+                $admin_res->password = substr(md5(md5($password)),0,34);
                 unset($session['id'], $session['time'], $session['str']);
             }
             if ($admin_res->save()) {
@@ -486,9 +534,17 @@ class UserController extends Controller
             }else{
                 return json_encode(['code' => 300, 'message' => '用户名不能为空']);
             }
-            $admin_res->username=\Yii::$app->request->post('username');
-            $admin_res->password=\Yii::$app->request->post('password');
-            $admin_res->malibox=\Yii::$app->request->post('malibox');
+            $password=\Yii::$app->request->post('password','');
+            if(empty($password)){
+                return json_encode(['code' => 300, 'message' => '密码不能为空']);
+            }
+            $malibox=\Yii::$app->request->post('malibox','');
+            if(empty($malibox)){
+                return json_encode(['code' => 300, 'message' => '邮箱不能为空']);
+            }
+            $admin_res->username=$username;
+            $admin_res->password=substr(md5(md5($password)),0,34);
+            $admin_res->malibox=$malibox;
             if(\Yii::$app->request->post('status','')){
                 $admin_res->status=1;
             }
@@ -504,13 +560,91 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * 用户浏览答题列表发送邮件 前端没写
+     */
+    public function actionCall(){
+        if(\Yii::$app->request->isPost){
+            $content=\Yii::$app->request->post('content','');
+            if(empty($content)){
+                return json_encode(['code' => 300, 'message' => '内容不能为空']);
+            }
+            $mailto=\Yii::$app->request->post('mailto','');
+            if(empty($mailto)){
+                return json_encode(['code' => 300, 'message' => '内容不能为空']);
+            }
+            if(!filter_var($mailto, FILTER_VALIDATE_EMAIL)){
+                return json_encode(['code' => 300, 'message' => '邮箱格式错误']);
+            }
+            if(empty($this->session_id)){
+                return $this->redirect(['admin']);
+            }
+            $cu_id=\Yii::$app->request->post('cu_id');
+//            $name=\Yii::$app->request->post('name','');
+            $subject='问卷回访';
+            $tr = \Yii::$app->db->beginTransaction();
+            $status=$this->Usermail($mailto,$subject,$content,true);
+            $create_id=$this->session_id;
+            $call_ob=new Call();
+            $call_ob->call_content=$content;
+//            $call_ob->create_name=$name;
+            $call_ob->mailto=$mailto;
+            $call_ob->create_id=$create_id;
+            $call_ob->status=intval($status);
+            $call_ob->p_id=$cu_id;
+            $call_ob->call_time=time();
+            if($call_ob->save() && $status){
+                $tr->commit();
+                return json_encode(['code' => 200, 'message' => '邮件发送成功']);
+            }else{
+                $tr->rollBack();
+                return json_encode(['code' => 300, 'message' => '邮件发送失败请稍后再试~']);
+            }
+        }else{
+            return json_encode(['code' => 300, 'message' => '非法请求~']);
+        }
+     }
+
+    public function actionCallshow(){
+        if(\Yii::$app->request->isPost){
+            $cu_id=\Yii::$app->request->post('cu_id','');
+            if(empty($cu_id)){
+                return json_encode(['code' => 300, 'message' => '参数错误']);
+            }
+            $mailto=\Yii::$app->request->post('mailto','');
+            if(empty($mailto)){
+                return json_encode(['code' => 300, 'message' => '内容不能为空']);
+            }
+//            $callRes=Call::find()->where('pid=:pid and mailto=:mailto',[':pid'=>$cu_id,':mailto'=>$mailto])->one();
+            $sql      = 'SELECT a.call_content,a.`status`,a.call_time,a.mailto,b.username from `call` as a,`user` as b where a.create_id=b.id AND a.p_id=%u and mailto="%s"';
+            $sql      = sprintf($sql,$cu_id,$mailto);
+            $callRes = \Yii::$app->db->createCommand($sql)->queryAll();
+            if(empty($callRes)){
+                return json_encode([]);
+            }
+            $arr=[];
+            foreach($callRes as $v){
+                $v['status']=$v['status'] ? '发送成功' :'发送失败';
+                $arr[]=[
+                    'mailto'=>$v['mailto'],
+                    'call_content'=>$v['call_content'],
+                    'status'=>$v['status'],
+                    'call_time'=>date('Y-m-d H:i:s',$v['call_time']),
+                    'create_name'=>$v['username'],
+                ];
+            }
+              return json_encode($arr);
+        }else{
+            return json_encode(['code' => 300, 'message' => '非法请求~']);
+        }
+    }
+
     protected function Userunique($username){
         $res=User::find()->where('username=:username',[':username'=>$username])->one();
-        $arr=$res->toArray();
-        if(isset($arr) && is_array($arr)){
-            return false;
-        }else{
+        if(empty($res)){
             return true;
+        }else{
+            return false;
         }
     }
 
@@ -530,12 +664,18 @@ class UserController extends Controller
      * @param $Subject  邮件主题
      * @param $boby     发送的消息内容
      * @return bool
+     *
      */
-    protected function Usermail($eamilto, $Subject, $boby)
+    protected function Usermail($eamilto, $Subject, $boby,$type=false)
     {
         $mail = \Yii::$app->mailer->compose();
+//        if($type){
+//        $mail->IsHTML($type);
+//        }
+//        $mail->ContentType='text/html';
         $mail->setTo($eamilto);
         $mail->setSubject($Subject);
+//        $mail->attachContent(['contentType' => 'text/html']);
         $mail->setHtmlBody($boby);
         return $mail->send();
     }

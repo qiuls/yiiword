@@ -6,10 +6,32 @@
  * Time: 11:36
  */
 ?>
-<div style="height: 30px;">
+<div class="userinfo">
+    <div style="height: 30px;">
+    <span style="font-size: 17px;"><b>用户信息</b></span>
+  </div>
+    <div>
+      <ul>
+          <li>用户名</li>
+          <li class="userinfo_li"><?php echo $user['username'];?></li>
+          <li>用户邮箱</li>
+          <li class="userinfo_li"><?php echo $user['malibox'];?></li>
+<!--          <li>创建时间</li>-->
+<!--          <li>--><?php //echo $user['create_time'];?><!--</li>-->
+          <li>登录时间</li>
+          <li class="userinfo_li"><?php echo date('Y-m-d H:i:s',$user['login_time']);?></li>
+          <li>最后登录时间</li>
+          <li class="userinfo_li"><?php echo date('Y-m-d H:i:s',$user['last_login_time']);?></li>
+      </ul>
+    </div>
+
+</div>
+<div style="width: 100%;height: 20px;"></div>
+<div class="userinfo_from" style="width: 50%;height: auto;border: 1px solid dimgrey; -webkit-border-radius:10px;-moz-border-radius:10px;border-radius: 15px;">
+<div style="height: 30px;background-color: #6a727d">
     <span style="font-size: 17px;"><b>修改用户信息</b></span>
 </div>
-<div class="form">
+    <div class="form">
     <form action="" method="post" id="from">
         <ul style="list-style: none;" id="from-ul">
             <li>新用户名：</li>
@@ -17,7 +39,9 @@
             <li>新邮箱：</li>
             <li><input type="email" class="form-control" name="malibox" value="<?php  echo $user['malibox'];?>" placeholder="请输入新的邮件"></li>
             <li>新密码：<li>
-            <li><input type="password" class="form-control" name="password"  value="<?php  echo $user['password'];?>" placeholder="请输入新的密码"></li>
+            <li><input type="password" class="form-control" name="password"  value="" placeholder="请输入新的密码"></li>
+            <il class="newpassword" >确认密码:</il>
+            <li  class="newpassword"><input type="password" name="newpassword"  value="" placeholder="请输入新的密码"></li>
             <li>是否修改密码: <input type="checkbox" class="form-control" value="1" name="query"></li>
             <li><input type="button"  style="width: 50px;height: 35px;text-align: center;" class='k-button k-button-icontext' id="from-button" value="确认"></li>
             <li><input type="hidden" value="<?php  echo $user['id'];?>" name="id"></li>
@@ -26,6 +50,7 @@
     </form>
 
 </div>
+    </div>
 <div class="error" style="display: none">
 
 
@@ -61,6 +86,27 @@
         border-color: #51a7e8;
         box-shadow: inset 0 1px 2px rgba(0,0,0,.075), 0 0 5px rgba(81,167,232,.5);
     }
+    .userinfo{
+      width: 50%;
+        height: auto;
+       border: 1px solid;
+        background-color: #6a727d;
+        border-color: royalblue;
+      -webkit-border-radius:10px;
+        -moz-border-radius:10px;
+        border-radius: 15px;
+    }
+    .userinfo ul li{
+        background-color: #6f91b3;
+        /*width: ;*/
+        height: 25px;;
+    }
+  .userinfo ul .userinfo_li{
+        background-color: #bf8412;
+    }
+    .userinfo ul .userinfo_li:hover{
+        background-color: snow;
+    }
 </style>
 <script>
   $(function(){
@@ -68,12 +114,13 @@
           $(this).before('<li><input type="text" name="yzm" /><input type="button" id="btn" class="k-button k-button-icontext" value="免费获取验证码" onclick="settime(this)" /><li>');
           $(this).css('display','none');
           $('#from-ul').append('<li><input type="button" class="k-button k-button-icontext"  style="width: 50px;height: 35px;text-align: center;" onclick="from_action();" id="from-submit" value="修改"></li>');
+
       });
   });
 
-var eamil=<?php  echo $user['malibox']?>;
-  var countdown=60;
-  function settime(obj) {
+   var  eamil='<?php echo $user['malibox'];?>';
+   var countdown=60;
+   function settime(obj) {
       if (countdown == 0) {
           obj.removeAttribute("disabled");
           obj.value="免费获取验证码";
@@ -101,18 +148,25 @@ var eamil=<?php  echo $user['malibox']?>;
           }
           countdown--;
       }
-      setTimeout(function() {
-              settime(obj) }
-          ,1000)
+      setTimeout(function() {settime(obj) },1000)
   }
     function from_action(e){
         var input_mail=$('input[type=email]').val();
-        if(!input_mail.match(/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/))
-        {
+        if(!input_mail.match(/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((\.[a-zA-Z0-9_-]{2,3}){1,2})$/)){
             $('.error').css('display','block');
-            $('.error').html('邮箱格式不正确');
+            $('.error').html('<span style="color: red">两邮箱格式不正确</span>');
             return;
         }
+        if($('input:checkbox:checked').val()==1){
+            var pass=$('input[name=password]').val();
+            var newpass=$('input[name=newpassword]').val();
+            if(pass!==newpass){
+                $('.error').css('display','block');
+                $('.error').html('<span style="color: red">两次密码不一致</span>');
+                return;
+            }
+        }
+
         $.ajax({
             url:'/?r=user/admininfo',
             type:'POST',
@@ -125,7 +179,16 @@ var eamil=<?php  echo $user['malibox']?>;
                     alert(res.message);
                 }
             }
-
-        })
+        });
     }
+
+//    function newpassword(){
+//        if($('input:checkbox:checked').val()==1){
+//            alert(1);
+//            //$('.newpassword').css('display','block');
+//        }else {
+//            alert(0);
+////          /   $('.newpassword').css('display','none');
+//        }
+//    }
 </script>

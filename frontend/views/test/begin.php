@@ -39,13 +39,18 @@
 <script src="/assets/b8f13ea9/jquery.js"></script>
 <script language="JavaScript">
 $(function(){
+    <?php if(empty($model['title']['id'])):?>
+$('input[name=name]').attr("disabled", 'disabled');
+$('input[name=mb_phone]').attr("disabled", 'disabled');
+    $('#button').attr("disabled", 'disabled');
+    <?php endif;?>
     $('#button').on('click',function(){
         var url=window.location.href;
-        var str=url.substr(-1);
-       if(str==undefined){
-           return false;
-       }
-         var name=$('input[name=name]').val();
+        var w_id=url.substr(-1);
+        if(w_id==undefined){
+            return false;
+        }
+        var name=$('input[name=name]').val();
          var mb=$('input[name=mb_phone]').val();
         var reg = /(1[3-9]\d{9}$)/;
         var str='';
@@ -65,12 +70,12 @@ $(function(){
         }
         if(error>0){
             $('#error').css('display','none');
-            $('#error').html('<span style="color: red">'+str+'</span>');
+            $('#error').html('<span style="color:red">'+str+'</span>');
             $('#error').css('display','block');
             return false;
         }
         $.ajax({
-              url:'/?r=test/begin&w_id='+str,
+              url:'/?r=test/begin&w_id='+w_id,
               type:'POST',
               data:$('#w_form').serialize(),
               dataType:'json',
@@ -87,8 +92,6 @@ $(function(){
     });
 });
 });
-
-
 </script>
 <style type="text/css">
 input[type=text],input[type=password]{

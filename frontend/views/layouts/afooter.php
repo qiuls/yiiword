@@ -6,7 +6,7 @@
     <script src="assets/kendoui/js/jquery.min.js"></script>
     <script src="assets/kendoui/js/kendo.web.min.js"></script>
 </head>
-<body style=";padding-top: -30px;">
+<body style=";padding-top: -30px;height: auto">
 <div id="container" style="width: 100%;padding-top: -30px;">
     <div id="header" style="background-color:#00a1e8;width: 100%;height:auto;">
        <div style="text-align: center">
@@ -19,36 +19,33 @@
 
 <!--        <div style="float: right"></div>-->
     </div>
-    <div id="menu" data-type="0" style="background-color:#000000;height:950px;width:12%;float:left;">
+    <div id="menu" data-type="0" style="background-color:#000000;height:1000px;width:12%;float:left;">
         <div class="div-1">
-
             <p onclick="div(1);" style="font-size: 16px;color: white;width:100%;height: 40px;"><span  class="k-icon k-i-arrow-s"></span>问卷管理</p>
              <ul style="list-style: none;display: none;">
             <li class="lable_li" onclick="javascript:document.getElementById('lable-01').click();"><a id="lable-01" href="/?r=user/"><b style="color: white">&nbsp;问卷列表</b></a></li>
             <li class="lable_li" onclick="javascript:document.getElementById('lable-02').click();"><a id="lable-02" href="/?r=user/add" ><b style="color: white">&nbsp;添加问卷</b></a></li>
                 <li>
         </div>
-
         <div class="div-2">
             <p style="font-size: 16px;color: white;width:100%;height: 40px;" onclick="div(2);"><span  class="k-icon k-i-arrow-s"></span>用户调查阅览</p>
                <ul style="list-style: none;display: none;">
                    <li class="lable_li"  onclick="javascript:document.getElementById('lable-03').click();"><a id="lable-03" href="/?r=user/userlist"><b style="color: white">&nbsp;答卷列表</b></a></li>
                </ul>
       </div>
-
-       <div class="div-3">
-
-            <p style="font-size: 16px;color: white;height: 40px;width:100%;"  onclick="div(3);"><span class="k-icon k-i-arrow-s"></span>用户中心</p>
+        <div class="div-3">
+           <p style="font-size: 16px;color: white;height: 40px;width:100%;"  onclick="div(3);"><span class="k-icon k-i-arrow-s"></span>用户中心</p>
            <ul style="list-style: none;display: none;">
            <li class="lable_li"  onclick="javascript:document.getElementById('lable-05').click();"><a id="lable-05" href="/?r=user/adminadd"><b style="color: white">&nbsp;添加新用户</b></a></li>
+               <li class="lable_li" id="userinfo" onclick="javascript:document.getElementById('lable-06').click();"><a href="/?r=user/backendlist" id="lable-06"><b style="color: white">&nbsp;管理员列表</b></a><li>
            <li class="lable_li" id="userinfo" onclick="javascript:document.getElementById('lable-04').click();"><a href="/?r=user/admininfo" id="lable-04"><b style="color: white">&nbsp;我的信息</b></a><li>
-               <li class="lable_li" id="tuichu" style="color: dimgrey">&nbsp;退出<span class="k-icon k-i-close"></span></li></ul>
+               <li class="lable_li" id="tuichu" style="color: dimgrey">&nbsp;<b>退出</b><span class="k-icon k-i-close"></span></li></ul>
         </div>
         <div id="show" data-type="1">
             <span style="width: 25px;height: 20px;"  class="k-icon k-i-hbars"></span>
         </div>
     </div>
-    <div id="content" style="background-color:#EEEEEE;height:950px;width:88%;float:left;">
+    <div id="content" style="background-color:#EEEEEE;height:1000px;width:88%;float:left;">
         <?= $content ?>
     </div>
     <div id="footer" style="background-color:#000000;clear:both;text-align:center;">

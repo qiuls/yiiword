@@ -26,7 +26,7 @@
     <div class="label_mb">
         <p style="color: #00aa00">为了我们方便联系你 请如实填写</p>
         <p><input type="text" name="name" value="" placeholder="请输入姓名"></p>
-        <p><input type="text" name="mb_phone" value="" onchange="this.value=this.value.replace(/\D/g,'')" placeholder="请输入手机号码"></p>
+        <p><input type="text" name="mb_phone" value=""  placeholder="请输入邮箱"></p>
     </div>
         <input name="_csrf" type="hidden" id="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
         <input name="task_pid" type="hidden" value="<?php echo  $model['title']['id'];?>">
@@ -45,14 +45,14 @@ $('input[name=mb_phone]').attr("disabled", 'disabled');
     $('#button').attr("disabled", 'disabled');
     <?php endif;?>
     $('#button').on('click',function(){
-        var url=window.location.href;
-        var w_id=url.substr(-1);
+//        var url=window.location.href;
+        var w_id='<?php echo \Yii::$app->request->get('w_id');?>';
         if(w_id==undefined){
             return false;
         }
         var name=$('input[name=name]').val();
          var mb=$('input[name=mb_phone]').val();
-        var reg = /(1[3-9]\d{9}$)/;
+        var reg = /^([\.a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/;
         var str='';
         var error=0;
         if(mb==''){
@@ -65,7 +65,7 @@ $('input[name=mb_phone]').attr("disabled", 'disabled');
             error=error+1;
         }
         if(!reg.test(mb)){
-            str+=' 手机号格式不正确';
+            str+=' 邮箱格式不正确';
             error=error+1;
         }
         if(error>0){

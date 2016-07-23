@@ -75,6 +75,10 @@ use yii\helpers\Html;
              }, {
                  field: "task_name",
                  title: "标题",
+                 template:function(item){
+                     var str=item.task_name;
+                     return str;
+                 }
              }, {
                  field: "meta",
                  title: "描述",
@@ -88,8 +92,10 @@ use yii\helpers\Html;
                  field: "meta",
                  title: "url",
                  template:function(item){
-                        var url='<?php echo $_SERVER['HTTP_HOST'];?>'+'/?r=test/begin&w_id='+item.id;
-                     var input='<input type="text"  style="width:180px;height: 50px;font-size: 17px;"  value="'+ url+'">';
+//
+//                     var input='<img src="http://qr.liantu.com/api.php?text='+item.url+'" width="130px" height="80px">';
+                     var input='<img src="images/'+item.url+'" width="130px" height="80px">';
+//                     var input='<input type="text"  style="width:180px;height: 50px;font-size: 17px;"  value="'+ url+'">';
                      return input;
                  }
              },{
@@ -146,6 +152,10 @@ use yii\helpers\Html;
                  }, {
                      field: "task_name",
                      title: "标题",
+                     template:function(item){
+                         var str=item.task_name;
+                         return str;
+                     }
                  }, {
                      field: "meta",
                      title: "描述",
@@ -166,7 +176,11 @@ use yii\helpers\Html;
                      title: "表单类型"
                  },{
                      field: "p_title_name",
-                     title: "所属问卷标题"
+                     title: "所属问卷标题",
+                     template:function(item){
+                         var p_title=item.p_title_name;
+                         return p_title;
+                     }
                  },{
                      field: "create_time",
                      title: "创建时间",
@@ -206,9 +220,6 @@ use yii\helpers\Html;
     }
 
     function updateStatus(id,status){
-//        var status=$(this).attr('data-status');
-//          alert(status);
-//        return;
         var _csrf=$('input[name=_csrf]').val();
         if(_csrf==undefined){
             return;

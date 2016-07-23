@@ -14,11 +14,16 @@ use app\models\User;
 class AdminController extends  Controller
 {
 public $layout='layouts';
-//   public $enableCsrfValidation = false;
+
 
     public function actionIndex()
     {
-        if(!empty($_POST)){
+        $session=\Yii::$app->session;
+        $session->open();
+        if($session['id'] && $session['name'] && $session['last_login_time']){
+            return $this->redirect('/?r=user/index');
+        }
+        if(\Yii::$app->request->isPost){
             $username=\Yii::$app->request->post('username','');
             $password=\Yii::$app->request->post('password','');
             $password=substr(md5(md5($password)),0,34);
@@ -36,19 +41,16 @@ public $layout='layouts';
                 return json_encode(['code'=>300,'message'=>'系统异常请稍后重试~']);
             }
             if(isset($res_arr['id']) && !empty($res_arr['id'])){
-                $session=\Yii::$app->session;
-                $session->open();
                 $session['id']=$res_arr['id'];
                 $session['name']=$res_arr['username'];
-                $session['last_login_time']=date('Y-m-d H:i:s',$res_arr['last_login_time']);
+                $session['roles']=$res_arr['roles'];
+                $session['last_login_time']=date('Y-m-d H:i:s',$res_arr['login_time']);
                 return json_encode(['code'=>200,'message'=>'','jump'=>'/?r=user/index']);
-//              return $this->redirect('/?r=user/index');
-              }else{
+               }else{
                 return json_encode(['code'=>300,'message'=>'用户名或密码错误,请重试~']);
-//                return $this->redirect('/?r=admin/index');
             }
         }else{
-        return $this->render('admin');
+          return $this->render('admin');
         }
     }
     public function actionUserout(){

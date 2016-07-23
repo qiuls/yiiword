@@ -11,13 +11,11 @@
     <span style="font-size: 17px;"><b>用户信息</b></span>
   </div>
     <div>
-      <ul>
+      <ul style="list-style: none;">
           <li>用户名</li>
           <li class="userinfo_li"><?php echo $user['username'];?></li>
           <li>用户邮箱</li>
           <li class="userinfo_li"><?php echo $user['malibox'];?></li>
-<!--          <li>创建时间</li>-->
-<!--          <li>--><?php //echo $user['create_time'];?><!--</li>-->
           <li>登录时间</li>
           <li class="userinfo_li"><?php echo date('Y-m-d H:i:s',$user['login_time']);?></li>
           <li>最后登录时间</li>
@@ -102,7 +100,8 @@
         height: 25px;;
     }
   .userinfo ul .userinfo_li{
-        background-color: #bf8412;
+      /*list-style: none;*/
+        background-color: #faebcc;
     }
     .userinfo ul .userinfo_li:hover{
         background-color: snow;
@@ -181,14 +180,4 @@
             }
         });
     }
-
-//    function newpassword(){
-//        if($('input:checkbox:checked').val()==1){
-//            alert(1);
-//            //$('.newpassword').css('display','block');
-//        }else {
-//            alert(0);
-////          /   $('.newpassword').css('display','none');
-//        }
-//    }
 </script>

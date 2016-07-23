@@ -61,6 +61,45 @@ use yii\helpers\Html;
 <!--</script>-->
 <script language="JavaScript">
     $(function(){
+        $(".formaction").kendoEditor({
+            tools: [
+                "bold",
+                "italic",
+                "underline",
+                "strikethrough",
+                "justifyLeft",
+                "justifyCenter",
+                "justifyRight",
+                "justifyFull",
+                "insertUnorderedList",
+                "insertOrderedList",
+                "indent",
+                "outdent",
+                "createLink",
+                "unlink",
+                "insertImage",
+                "insertFile",
+                "subscript",
+                "superscript",
+                "createTable",
+                "addRowAbove",
+                "addRowBelow",
+                "addColumnLeft",
+                "addColumnRight",
+                "deleteRow",
+                "deleteColumn",
+                "viewHtml",
+                "formatting",
+                "cleanFormatting",
+                "fontName",
+                "fontSize",
+                "foreColor",
+                "backColor",
+                "print"
+            ]
+        });
+
+
         $.ajax({
             url:'/?r=user/api',
             type:'GET',
@@ -116,6 +155,10 @@ use yii\helpers\Html;
                             field:"task_ptitle",
                             title:"文件标题",
                             width:140,
+                            template:function(item){
+                                var task_ptitle=item.task_ptitle;
+                                return task_ptitle;
+                            }
                         },{
                             field:"create_time",
                             title:"创建时间",
@@ -165,7 +208,11 @@ use yii\helpers\Html;
                         columns: [{
                           field:'task_name',
                           title:'标题',
-                            width:140
+                            width:140,
+                            template:function(item){
+                                var str=item.task_name;
+                                return str;
+                            }
                         },{
                             field:'a',
                             title:'选项a',
@@ -239,43 +286,7 @@ use yii\helpers\Html;
         $('.Mailto').attr('data-pid',pid);
         $('.Mailto').attr('data-name',name);
         $('.Mailto').attr('data-mb',mb_phone);
-//        $(".formaction").kendoEditor({
-//            tools: [
-//                "bold",
-//                "italic",
-//                "underline",
-//                "strikethrough",
-//                "justifyLeft",
-//                "justifyCenter",
-//                "justifyRight",
-//                "justifyFull",
-//                "insertUnorderedList",
-//                "insertOrderedList",
-//                "indent",
-//                "outdent",
-//                "createLink",
-//                "unlink",
-//                "insertImage",
-//                "insertFile",
-//                "subscript",
-//                "superscript",
-//                "createTable",
-//                "addRowAbove",
-//                "addRowBelow",
-//                "addColumnLeft",
-//                "addColumnRight",
-//                "deleteRow",
-//                "deleteColumn",
-//                "viewHtml",
-//                "formatting",
-//                "cleanFormatting",
-//                "fontName",
-//                "fontSize",
-//                "foreColor",
-//                "backColor",
-//                "print"
-//            ]
-//        });
+//        $(".formaction").empty();
         $('#cwk_info .userinfo').append(userinfo);
         $.ajax({
            url:'/?r=user/usercwkapi',
@@ -305,7 +316,11 @@ use yii\helpers\Html;
                    columns:[{
                        field:'task_name',
                        title:'标题',
-                       width:140
+                       width:140,
+                       template:function(item){
+                           var str=item.task_name;
+                           return str;
+                       }
 
                    },{
                        field:'a',

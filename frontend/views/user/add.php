@@ -10,18 +10,18 @@
     <div class="error" style="display: none">
     </div>
     <form action="" method="post" id="inputfrom">
-    <textarea name="task_name" id="task_name" placeholder="请输入标题内容">
+    <textarea name="task_name" id="task_name" style="width: 75%;height: 300px;" placeholder="请输入标题内容">
 </textarea>
         <div class="fun1" style="display: none;">
     <p><input type="text" name="a" placeholder="请输入a选项内容"></p>
     <p><input type="text" name="b" placeholder="请输入b选项内容"></p>
     <p><input type="text" name="c" placeholder="请输入c选项内容"></p>
     <p><input type="text" name="d" placeholder="请输入d选项内容"></p>
-            <p><select name="pid" id="pid"  style="width: 210px; height: 35px;">
+            <p>&nbsp;<select name="pid" id="pid"  style="width: 310px; height: 35px;">
 <!--                <option value="-1">请选择所属分类标题</option>-->
             </select></p>
 <!--            <p><input type="text" name="pid" placeholder="请输入问卷id"></p>-->
-            <p><select name="input" id="select"  style="width: 210px; height: 35px;">
+            <p>&nbsp;<select name="input" id="select"  style="width: 310px; height: 35px;">
                 <option value="-1">请选择表单框</option>
                 <option value="1">文本框</option>
                 <option value="2">单选框</option>
@@ -31,12 +31,50 @@
         <input type="hidden" name="type" id="hidden" value="1">
         <input name="_csrf" type="hidden" id="_csrf" value="<?= Yii::$app->request->csrfToken ?>">
 <!--    <p><input type="text" name="key" placeholder="请输入题目选项"></p>-->
-    <textarea name="meta" placeholder="描述" width="300px;" height="200px"></textarea>
+    <textarea name="meta" placeholder="描述" style="width: 75%;height: 200px;"></textarea>
         <p><input type="button" id="button" class='k-button k-button-icontext' value="确定"></p>
     </form>
 </div>
 <script>
     $(function () {
+        $("#task_name").kendoEditor({
+            tools: [
+                "bold",
+                "italic",
+                "underline",
+                "strikethrough",
+                "justifyLeft",
+                "justifyCenter",
+                "justifyRight",
+                "justifyFull",
+                "insertUnorderedList",
+                "insertOrderedList",
+                "indent",
+                "outdent",
+                "createLink",
+                "unlink",
+                "insertImage",
+                "insertFile",
+                "subscript",
+                "superscript",
+                "createTable",
+                "addRowAbove",
+                "addRowBelow",
+                "addColumnLeft",
+                "addColumnRight",
+                "deleteRow",
+                "deleteColumn",
+                "viewHtml",
+                "formatting",
+                "cleanFormatting",
+                "fontName",
+                "fontSize",
+                "foreColor",
+                "backColor",
+                "print"
+            ]
+        });
+
         $('#button').on('click',function(){
             var task_name=$('#task_name').val();
             if(task_name==undefined || task_name==''){
@@ -124,7 +162,7 @@
 input[type=text],input[type=password]{
     margin: 5px;
     padding: 0 10px;
-    width: 200px;
+    width: 300px;
     height: 34px;
     color: #404040;
     font-size: 18px;
@@ -151,8 +189,5 @@ input[type=password]:active{
     border-color: #51a7e8;
     box-shadow: inset 0 1px 2px rgba(0,0,0,.075), 0 0 5px rgba(81,167,232,.5);
 }
-    textarea{
-        width: 220px;
-        height: 100px;
-    }
+
 </style>

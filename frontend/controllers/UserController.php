@@ -108,15 +108,27 @@ class UserController extends Controller
             $csawk_res = Csawk::find()->where('type=:type', [':type' => $type])->offset($offset)->limit($pageSzie)->orderBy('id desc')->all();
             $arr       = [];
             foreach ($csawk_res as $v) {
-                if ($type == 1) {
-                    $arr[] = [
+                if ($type == 1) {//问卷title
+                     $url=$_SERVER['HTTP_HOST'].'/?r=test/begin%26w_id='.$v['id'];
+                     $file_name=md5($url).'.png';
+                     $dir=YII_WEB.'/images/';
+                     $file_name_arr=scandir($dir);
+                    if(!in_array($file_name,$file_name_arr)){
+                        $readfile="http://qr.topscan.com/api.php?text={$url}";
+                        $str=file_get_contents($readfile);
+                        if(!file_put_contents($dir.$file_name,$str)) {
+                            $file_name='';
+                        }
+                    }
+                      $arr[] = [
                         'id'        => $v['id'],
                         'type'      => $v['type'],
-                        'task_name' => $v['task_name'],
+                        'task_name' => htmlspecialchars_decode($v['task_name']),
                         'status'    =>$v['status'],
                         'create_time'=>date('Y-m-d H:i:s',$v['create_time']),
                         'last_update_time'=>date('Y-m-d H:i:s',$v['last_update_time']),
                         'meta'      => $v['meta'],
+                          'url'=>$file_name,
                     ];
                 } elseif ($type == 2) {
                     $p_title = '';
@@ -140,7 +152,7 @@ class UserController extends Controller
                     }
                     $arr[] = [
                         'id'           => $v['id'],
-                        'task_name'    => $v['task_name'],
+                        'task_name'    => htmlspecialchars_decode($v['task_name']),
                         'type'         => $v['type'],
                         'meta'         => $v['meta'],
                         'a'            => $v['a'],
@@ -149,7 +161,7 @@ class UserController extends Controller
                         'd'            => $v['d'],
                         'input'        => $v['input'],
                         'status'    =>$v['status'],
-                        'p_title_name' => $p_title,
+                        'p_title_name' => htmlspecialchars_decode($p_title),
                         'create_time'=>date('Y-m-d H:i:s',$v['create_time']),
                         'last_update_time'=>date('Y-m-d H:i:s',$v['last_update_time']),
                     ];
@@ -242,7 +254,7 @@ class UserController extends Controller
                 'pid'         => $pid,
                 'mb_phone'    => $v->mb_phone,
                 'name'        => $v->name,
-                'task_ptitle' => $v->task_ptitle,
+                'task_ptitle' => htmlspecialchars_decode($v->task_ptitle),
                 'create_time'=>date('Y-m-d H:i:s',$v->create_time),
             ];
         }
@@ -273,7 +285,7 @@ class UserController extends Controller
         foreach ($p_title as $value) {
             $arr[] = [
                 'id'        => $value['id'],
-                'task_name' => $value['task_name'],
+                'task_name' => htmlspecialchars_decode($value['task_name']),
             ];
         }
         return json_encode($arr);
@@ -288,11 +300,11 @@ class UserController extends Controller
         if (empty($_POST)) {
             return json_encode(['code' => 403, 'message' => '请求异常']);
         } else {
-            $task_pid = intval(\Yii::$app->request->post('pid', ''));
+            $task_pid = intval(\Yii::$app->request->post('pid',''));
             if (empty($task_pid)) {
                 return json_encode(['code' => 403, 'message' => '缺少参数']);
             }
-            $mb_phone = intval(\Yii::$app->request->post('mobile', ''));
+            $mb_phone = \Yii::$app->request->post('mobile','');
             if (empty($mb_phone)) {
                 return json_encode(['code' => 403, 'message' => '缺少参数']);
             }
@@ -301,7 +313,9 @@ class UserController extends Controller
             //             if(!preg_match("/^1\d{10}$/",$mb_phone)){
             //                 return json_encode(['code' => 403, 'message' => '格式有误']);
             //             }
-            $sql      = "SELECT a.task_id,a.res,b.task_name,b.a,b.b,b.c,b.d,b.input from csuser as a,csawk as b where a.task_id=b.id AND a.mb_phone=$mb_phone and a.task_pid=$task_pid";
+            $sql      = "SELECT a.task_id,a.res,b.task_name,b.a,b.b,b.c,b.d,b.input from csuser as a,csawk as b where a.task_id=b.id AND a.mb_phone='{$mb_phone}' and a.task_pid=$task_pid";
+//            var_dump($sql);
+//            die();
             $user_res = \Yii::$app->db->createCommand($sql)->queryAll();
             $arr      = [];
             foreach ($user_res as $v) {
@@ -325,7 +339,7 @@ class UserController extends Controller
                     'c'         => $v['c'],
                     'd'         => $v['d'],
                     'input'     => $v['input'],
-                    'task_name' => $v['task_name'],
+                    'task_name' => htmlspecialchars_decode($v['task_name']),
 //                    'create_time'=>date('Y-m-d H:i:s',$v['create_time']),
                     'res'       => $v['res'],
                 ];
@@ -360,7 +374,7 @@ class UserController extends Controller
                 $arr[]   = [
                     'count'     => $count,
                     'task_id'   => $v->id,
-                    'task_name' => $v->task_name,
+                    'task_name' => htmlspecialchars_decode($v->task_name),
                     'a'         => $v->a,
                     'b'         => $v->b,
                     'c'         => $v->c,
@@ -378,11 +392,14 @@ class UserController extends Controller
         return json_encode($arr);
     }
 
+    /**
+     * 更新问卷题目
+     * @return string
+     */
     public function actionUpdate()
     {
         if (\Yii::$app->request->isPost) {
             $type = \Yii::$app->request->post('type', '');
-
             $session = \Yii::$app->session;
             $session->open();
             $id = \Yii::$app->request->post('id', '');
@@ -442,8 +459,10 @@ class UserController extends Controller
         }
     }
 
-//    public function
-
+    /**
+     * 管理员用户信息 更新管理员信息
+     * @return string|\yii\web\Response
+     */
     public function actionAdmininfo()
     {
         $session = \Yii::$app->session;
@@ -497,6 +516,10 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * 发送邮件
+     * @return string
+     */
     public function actionMail()
     {
         if (\Yii::$app->request->isPost) {
@@ -523,6 +546,10 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * 添加管理员
+     * @return string
+     */
     public function actionAdminadd(){
         if(\Yii::$app->request->isPost){
             $admin_res=new User();
@@ -561,7 +588,7 @@ class UserController extends Controller
     }
 
     /**
-     * 用户浏览答题列表发送邮件 前端没写
+     * 管理员浏览答题列表发送邮件
      */
     public function actionCall(){
         if(\Yii::$app->request->isPost){
@@ -605,14 +632,20 @@ class UserController extends Controller
         }
      }
 
+    /**
+     * 回访邮件列表
+     * @return string
+     */
     public function actionCallshow(){
         if(\Yii::$app->request->isPost){
             $cu_id=\Yii::$app->request->post('cu_id','');
             if(empty($cu_id)){
+                \Yii::warning('cu_id为空',__METHOD__);
                 return json_encode(['code' => 300, 'message' => '参数错误']);
             }
             $mailto=\Yii::$app->request->post('mailto','');
             if(empty($mailto)){
+                \Yii::warning('mailto为空',__METHOD__);
                 return json_encode(['code' => 300, 'message' => '内容不能为空']);
             }
 //            $callRes=Call::find()->where('pid=:pid and mailto=:mailto',[':pid'=>$cu_id,':mailto'=>$mailto])->one();
@@ -627,7 +660,7 @@ class UserController extends Controller
                 $v['status']=$v['status'] ? '发送成功' :'发送失败';
                 $arr[]=[
                     'mailto'=>$v['mailto'],
-                    'call_content'=>$v['call_content'],
+                    'call_content'=>htmlspecialchars_decode($v['call_content']),
                     'status'=>$v['status'],
                     'call_time'=>date('Y-m-d H:i:s',$v['call_time']),
                     'create_name'=>$v['username'],
@@ -635,10 +668,86 @@ class UserController extends Controller
             }
               return json_encode($arr);
         }else{
-            return json_encode(['code' => 300, 'message' => '非法请求~']);
+            $message='非法请求~';
+            $userIp=\Yii::$app->request->getUserIP();
+            \Yii::error($message.'用户id'.$userIp,__METHOD__);
+            return json_encode(['code' => 300, 'message' => $message]);
         }
     }
 
+    /**
+     * 后台用户列表
+     */
+      public function actionBackendlist(){
+        if(\Yii::$app->request->isPost){
+            $userRes=User::find()->select(['id','username','status','malibox'])->all();
+            $returnArr=[];
+            foreach($userRes as $v){
+                $returnArr[]=[
+                    'id'=>$v['id'],
+                    'username'=>$v['username'],
+                    'malibox'=>$v['malibox'],
+                    'status_message'=>$v['status']==1 ?'激活' :'未激活',
+                    'status'=>$v['status'],
+                ];
+            }
+            $arr=[
+                'list'=>$returnArr,
+                 'total'=>count($returnArr),
+            ];
+            return json_encode($arr);
+         }else{
+            return $this->render('backendlist');
+        }
+      }
+
+    /**
+     * 管理后台用户 禁用 启用
+     * @return string
+     */
+    public function actionBackendupdate(){
+
+        if(\Yii::$app->request->isPost){
+              $id=\Yii::$app->request->post('id','');
+            if(empty($id)){
+                \Yii::warning('id为空 '.__METHOD__);
+                return json_encode(['code' => 300, 'message' => '参数错误']);
+            }
+            $status=\Yii::$app->request->post('status','');
+            if(empty($id)){
+                \Yii::warning('status为空 '.__METHOD__);
+                return json_encode(['code' => 300, 'message' => '参数错误']);
+            }
+            $res=User::find()->where('id=:id',[':id'=>$id])->one();
+            $resArr=$res->toArray();
+            if($resArr['status']==$status){
+                return json_encode(['code' => 300, 'message' => '请刷新页面重试~']);
+            }
+            $session = \Yii::$app->session;
+            $session->open();
+            if($session['roles']!=='root'){
+                return json_encode(['code' => 300, 'message' => '角色权限不足~']);
+            }
+            $res->status=$status;
+            if($res->save()){
+                return json_encode(['code' => 200, 'message' => '操作成功~,请刷新页面']);
+            }else{
+                $post=json_encode(\Yii::$app->request->post());
+                \Yii::warning('请求参数：'.$post.'  '.__METHOD__);
+                return json_encode(['code' => 200, 'message' => '操作失败~,请稍后再试']);
+            }
+          }else{
+            $message='非法请求~';
+            $userIp=\Yii::$app->request->getUserIP();
+            \Yii::error($message.'用户id:'.$userIp.__METHOD__);
+            return json_encode(['code' => 300, 'message' => $message]);
+        }
+    }
+    /**
+     * 判断 管理员用户名是否存在
+     * @param $username
+     * @return bool
+     */
     protected function Userunique($username){
         $res=User::find()->where('username=:username',[':username'=>$username])->one();
         if(empty($res)){
@@ -648,6 +757,11 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @param $i
+     * @return string
+     * 生成数字验证码
+     */
     protected function str_num($i)
     {
         $str = '';
@@ -669,14 +783,13 @@ class UserController extends Controller
     protected function Usermail($eamilto, $Subject, $boby,$type=false)
     {
         $mail = \Yii::$app->mailer->compose();
-//        if($type){
-//        $mail->IsHTML($type);
-//        }
-//        $mail->ContentType='text/html';
         $mail->setTo($eamilto);
         $mail->setSubject($Subject);
-//        $mail->attachContent(['contentType' => 'text/html']);
-        $mail->setHtmlBody($boby);
+        if(!$type){
+        $mail->setHtmlBody(htmlspecialchars_decode($boby));
+        }else{
+            $mail->setTextBody($boby);
+        }
         return $mail->send();
     }
 

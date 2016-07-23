@@ -65,7 +65,9 @@ class TestController extends Controller
             'input'=>$v['input'],
                ];
            }
-            unset($w_res);
+//            var_dump($arr,$pid);
+//            die();
+//            unset($w_res);
             $task_pid=intval(\Yii::$app->request->post('task_pid'));
             $p_res=Csawk::find()->where('id=:id',[':id'=>$task_pid])->one();
             $p_res=$p_res->toArray();
@@ -94,7 +96,6 @@ class TestController extends Controller
                    $num++;
                 }
             }
-
                 if($num==count($arr)){
                     $tr->commit();
                     return json_encode(['code' => 200,'message'=>'添加成功']);
@@ -116,10 +117,12 @@ class TestController extends Controller
 //            }
             if(!empty($res)){
             $res   = $res->toArray();
+            $res['task_name']   =htmlspecialchars_decode($res['task_name']);
             }else{
                 $res['task_name']='页面错误~ 请联系管理员获取新的链接';
                 $res['id']='';
             }
+
             $model = ['title' => $res, 'arr' => $w_res];
             return $this->render('begin', ['model' => $model]);
         }
@@ -133,7 +136,7 @@ class TestController extends Controller
            foreach ($p_title as $value) {
                $arr[] = [
                    'id'        => $value['id'],
-                   'task_name' => $value['task_name'],
+                   'task_name' => htmlspecialchars_decode($value['task_name']),
                ];
            }
            return $this->render('end',['arr'=>$arr,'str'=>$str]);

@@ -49,7 +49,6 @@ class UserController extends Controller
     public function actionIndex()
     {
         return $this->render('user');
-
     }
 
     /**
@@ -517,7 +516,7 @@ class UserController extends Controller
     }
 
     /**
-     * 发送邮件
+     * 发送邮件修改密码
      * @return string
      */
     public function actionMail()
@@ -588,7 +587,7 @@ class UserController extends Controller
     }
 
     /**
-     * 管理员浏览答题列表发送邮件
+     * 管理员浏览答题列表发送回访邮件
      */
     public function actionCall(){
         if(\Yii::$app->request->isPost){
@@ -607,7 +606,6 @@ class UserController extends Controller
                 return $this->redirect(['admin']);
             }
             $cu_id=\Yii::$app->request->post('cu_id');
-//            $name=\Yii::$app->request->post('name','');
             $subject='问卷回访';
             $tr = \Yii::$app->db->beginTransaction();
             $status=$this->Usermail($mailto,$subject,$content,true);
@@ -631,6 +629,55 @@ class UserController extends Controller
             return json_encode(['code' => 300, 'message' => '非法请求~']);
         }
      }
+
+
+    /**
+     * 异步批量发送
+     */
+    public function  actionCallAll(){
+        $content=\Yii::$app->request->post('content','');
+        if(empty($content)){
+            return json_encode(['code' => 300, 'message' => '内容不能为空']);
+        }
+        $mailto=\Yii::$app->request->post('mailto','');
+        if(empty($mailto)){
+            return json_encode(['code' => 300, 'message' => '发送邮箱不能为空']);
+        }
+        $mailto=explode(',',$mailto);
+        $to=[];
+        foreach($mailto as $key=>$mailtos){
+        if(filter_var($mailto[$key], FILTER_VALIDATE_EMAIL)){
+           $to[]=$mailto[$key];
+          }
+        }
+        if(empty($to)){
+            return json_encode(['code' => 300, 'message' => '邮箱格式错误']);
+        }
+        unset($mailto);
+        if(empty($this->session_id)){
+            return $this->redirect(['admin']);
+        }
+        $p_id=\Yii::$app->request->post('cu_id');
+        $data['content']=htmlspecialchars_decode($content);
+        $data['mailto']=$to;
+        $data['session_id']=$this->session_id;
+        $data['pid']=$p_id;
+        $url='http://'.\Yii::$app->params['swoole']['host'].':'.\Yii::$app->params['swoole']['port'];
+        $post_data=http_build_query($data);
+        unset($data);
+        $ch=curl_init();
+        curl_setopt ( $ch, CURLOPT_URL, $url);
+        curl_setopt ( $ch, CURLOPT_POST, 1 );
+        curl_setopt ( $ch, CURLOPT_HEADER, 0 );
+        curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt ( $ch, CURLOPT_POSTFIELDS, $post_data );
+        $re=curl_exec($ch);
+        if(!empty($re)){
+            return json_encode(['code' => 200, 'message' => '操作成功']);
+        }else{
+            return json_encode(['code' => 400, 'message' => '系统错误']);
+        }
+    }
 
     /**
      * 回访邮件列表
@@ -670,7 +717,7 @@ class UserController extends Controller
         }else{
             $message='非法请求~';
             $userIp=\Yii::$app->request->getUserIP();
-            \Yii::error($message.'用户id'.$userIp,__METHOD__);
+            \Yii::error($message.'用户ip'.$userIp,__METHOD__);
             return json_encode(['code' => 300, 'message' => $message]);
         }
     }
@@ -739,10 +786,12 @@ class UserController extends Controller
           }else{
             $message='非法请求~';
             $userIp=\Yii::$app->request->getUserIP();
-            \Yii::error($message.'用户id:'.$userIp.__METHOD__);
+            \Yii::error($message.'用户ip:'.$userIp.__METHOD__);
             return json_encode(['code' => 300, 'message' => $message]);
         }
     }
+
+
     /**
      * 判断 管理员用户名是否存在
      * @param $username
@@ -777,6 +826,7 @@ class UserController extends Controller
      * @param $eamilto  要发送给那个人的邮箱
      * @param $Subject  邮件主题
      * @param $boby     发送的消息内容
+     * @param $type   是否发送html实体
      * @return bool
      *
      */

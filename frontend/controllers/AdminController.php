@@ -18,6 +18,9 @@ public $layout='layouts';
 
     public function actionIndex()
     {
+        /**
+         * 1111
+         */
         $session=\Yii::$app->session;
         $session->open();
         if($session['id'] && $session['name'] && $session['last_login_time']){
@@ -59,5 +62,12 @@ public $layout='layouts';
         unset($session['id'],$session['name'],$session['last_login_time']);
 //        unset();
         return $this->redirect(['index']);
+    }
+
+    public function actionSend(){
+        include '/home/user/web/yii/common/controllers/Email.php';
+        $Email=new \Email();
+        var_dump($Email->Send('1805668790@qq.com'));
+
     }
 }

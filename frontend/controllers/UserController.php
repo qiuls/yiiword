@@ -672,10 +672,11 @@ class UserController extends Controller
         curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt ( $ch, CURLOPT_POSTFIELDS, $post_data );
         $re=curl_exec($ch);
-        if(!empty($re)){
-            return json_encode(['code' => 200, 'message' => '操作成功']);
-        }else{
+        //var_dump($re);
+        if(is_bool($re) && $re===false){
             return json_encode(['code' => 400, 'message' => '系统错误']);
+        }else{
+            return json_encode(['code' => 200, 'message' => '操作成功']);
         }
     }
 

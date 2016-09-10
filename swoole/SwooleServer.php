@@ -17,6 +17,7 @@ class SwooleServer
     public $redis=null;
     public $pdo  =null;
     public $server_config=null;
+    public  static $master_pid=null;
  public function __construct($eamil,$pdo,$redis,$config)
  {
         $this->eamil=$eamil;
@@ -70,12 +71,14 @@ class SwooleServer
         $http->on('start',function($serv){
             $time=date('Y-m-d H:i:s',time());
             $start=' start time--'.$time.'pid--'.$serv->master_pid;
+            $this->redis->set('swoolePid',$serv->master_pid);
             echo $start;
         });
         $http->on('onWorkerStop',function($serv, $taskId){
             $time=date('Y-m-d H:i:s',time());
             echo "  stop time-- $serv->master_pid ";
         });
+//        self::$master_pid=$http->master_pid;
         $this->swooleServer=$http;
         $http->start();
     }

@@ -12,13 +12,13 @@
   </div>
     <div>
       <ul style="list-style: none;">
-          <li>用户名</li>
+          <li class="userinfo_li">用户名</li>
           <li class="userinfo_li"><?php echo $user['username'];?></li>
-          <li>用户邮箱</li>
+          <li class="userinfo_li">用户邮箱</li>
           <li class="userinfo_li"><?php echo $user['malibox'];?></li>
-          <li>登录时间</li>
+          <li class="userinfo_li">登录时间</li>
           <li class="userinfo_li"><?php echo date('Y-m-d H:i:s',$user['login_time']);?></li>
-          <li>最后登录时间</li>
+          <li class="userinfo_li">最后登录时间</li>
           <li class="userinfo_li"><?php echo date('Y-m-d H:i:s',$user['last_login_time']);?></li>
       </ul>
     </div>
@@ -94,16 +94,17 @@
         -moz-border-radius:10px;
         border-radius: 15px;
     }
-    .userinfo ul li{
-        background-color: #6f91b3;
-        /*width: ;*/
-        height: 25px;;
-    }
-  .userinfo ul .userinfo_li{
-      /*list-style: none;*/
-        background-color: #faebcc;
-    }
-    .userinfo ul .userinfo_li:hover{
+    /*.userinfo ul li{*/
+        /*background-color: #6f91b3;*/
+        /*!*width: ;*!*/
+        /*height: 25px;;*/
+    /*}*/
+  /*.userinfo ul .userinfo_li{*/
+      /*!*list-style: none;*!*/
+        /*background-color: #faebcc;*/
+    /*}*/
+    .userinfo ul .userinfo_li{
+        height: 30px;
         background-color: snow;
     }
 </style>

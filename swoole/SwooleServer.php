@@ -11,13 +11,13 @@ namespace swoole;
 
 class SwooleServer
 {
-  public static $swooleApp=null;
+//  public static $swooleApp=null;
     public $swooleServer=null;
     public $eamil=null;
     public $redis=null;
     public $pdo  =null;
     public $server_config=null;
-    public  static $master_pid=null;
+//    public  static $master_pid=null;
  public function __construct($eamil,$pdo,$redis,$config)
  {
         $this->eamil=$eamil;

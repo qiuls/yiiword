@@ -15,4 +15,34 @@ return [
            'log_file' => '/tmp/swoole_http_server.log',
        ],
      ],
+    'redis'=>[
+        'host'=>'127.0.0.1',
+        'port'=>6379,
+    ],
+    'db' => [
+        'class' => 'yii\db\Connection',
+        'dsn' => 'mysql:host=localhost;dbname=yii2advanced',
+        'username' => 'root',
+        'password' => '1234',
+        'charset' => 'utf8',
+    ],
+      'AppLog'=>[
+          'console'=>[
+              'dir'=>dirname(dirname(__DIR__)).'/console/runtime',
+              'admin'=>'1805668790@qq.com',
+          ],
+          'frontend'=>[
+              'dir'=>dirname(dirname(__DIR__)).'/frontend/runtime',
+              'admin'=>'1805668790@qq.com',
+          ],
+      ],
+    'phpmailer'=>[
+        'password'=>'c2h1YW5nMTIz',
+    ],
+    'login'=>[
+        'error'=>[
+            'frontend'=>'frontendLoginError:',
+             'num'=>6,
+        ],
+    ],
 ];

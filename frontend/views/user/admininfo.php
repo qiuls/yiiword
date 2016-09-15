@@ -94,15 +94,6 @@
         -moz-border-radius:10px;
         border-radius: 15px;
     }
-    /*.userinfo ul li{*/
-        /*background-color: #6f91b3;*/
-        /*!*width: ;*!*/
-        /*height: 25px;;*/
-    /*}*/
-  /*.userinfo ul .userinfo_li{*/
-      /*!*list-style: none;*!*/
-        /*background-color: #faebcc;*/
-    /*}*/
     .userinfo ul .userinfo_li{
         height: 30px;
         background-color: snow;

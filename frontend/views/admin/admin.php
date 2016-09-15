@@ -50,7 +50,7 @@
 
     </body>
 <div style="text-align:center;">
-<p>来源：<a href="http://www.mycodes.net/" title="源码之家" target="_blank">源码之家</a></p>
+<!--<p>来源：<a href="http://www.mycodes.net/" title="源码之家" target="_blank">源码之家</a></p>-->
 </div>
 </html>
 <style type="text/css">
@@ -67,11 +67,11 @@ $(function(){
             data:$('#login_form').serialize(),
             dataType:'json',
             success:function(res){
-             if(res.code==200){
-                 window.location.href=res.jump;
+             if(res.error.code==200){
+                 window.location.href=res.data;
              }else {
                  $('.l_error').empty();
-                 $('.l_error').html(res.message);
+                 $('.l_error').html(res.error.message);
                  $('.l_error').css('display','block');
              }
             }
